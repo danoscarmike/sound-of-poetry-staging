@@ -1,5 +1,3 @@
-import os
-
 import mysql.connector
 from mysql.connector import errorcode
 
@@ -31,8 +29,6 @@ def create_table(cursor, table_name):
     else:
         print("OK")
 
-    cursor.close()
-
 
 def drop_table(cursor, table_name):
     try:
@@ -43,21 +39,25 @@ def drop_table(cursor, table_name):
     else:
         print("OK")
 
-    cursor.close()
-
 
 # TODO(danom): generalize this to add any record to any table
 def insert_record(cnx, cursor, table_name, record):
+    select_poet = f"""SELECT name, meta, bio """ \
+                  f"""FROM {table_name} """ \
+                  f"""WHERE name=%s AND meta=%s AND bio=%s;"""
+
     insert_poet = f"""INSERT INTO {table_name} """ \
                   f"""(name, meta, bio) """ \
                   f"""VALUES (%s, %s, %s);"""
     try:
         print("Inserting new record...")
-        cursor.execute(insert_poet, (record['name'], record['meta'], record['bio']))
+        cursor.execute(select_poet, (record['name'], record['meta'], record['bio']))
+        if len(cursor.fetchall()) == 0:
+            cursor.execute(insert_poet, (record['name'], record['meta'], record['bio']))
+            cnx.commit()
+        else:
+            print("Record already exists.")
     except mysql.connector.Error as err:
         print(err.msg)
     else:
         print("OK")
-
-    cnx.commit()
-    cursor.close()

@@ -1,3 +1,5 @@
+import os
+
 from scripts.scrape_poet import scrape_poet
 from scripts.database import *
 
@@ -19,8 +21,13 @@ def main():
                            'poetry')
     cursor = db_cnx.cursor()
 
+    # create table
+    create_table(cursor, 'poet')
+
     # insert poet into db
     insert_record(db_cnx, cursor, 'poet', yeats)
+
+    cursor.close()
 
 
 if __name__ == "__main__":
