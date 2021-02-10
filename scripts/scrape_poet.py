@@ -23,10 +23,8 @@ def scrape_poet(name):
         poet["meta"] = ''
 
     # biography/main text
-    poet_bio = page_soup.find('div', class_="c-userContent")
-    poet["bio"] = []
-    for p in poet_bio.find_all('p'):
-        poet["bio"].append(p.text)
+    poet_bio = page_soup.find('div', class_="c-userContent").text
+    poet["bio"] = poet_bio
 
     # 'more about this poet' section
     poet_attrs = {}
@@ -51,5 +49,4 @@ if __name__ == "__main__":
     for key, value in etheridge["attrs"].items():
         print(f'{key} {value}')
     print('Bio:')
-    for para in etheridge["bio"]:
-        print(para)
+    print(etheridge['bio'])
