@@ -40,13 +40,3 @@ def scrape_poet(name):
     poet["attrs"] = poet_attrs
 
     return poet
-
-
-if __name__ == "__main__":
-    etheridge = scrape_poet('etheridge-knight')
-    print(f'Name: {etheridge["name"]}')
-    print(f'Meta: {etheridge["meta"]}')
-    for key, value in etheridge["attrs"].items():
-        print(f'{key} {value}')
-    print('Bio:')
-    print(etheridge['bio'])
