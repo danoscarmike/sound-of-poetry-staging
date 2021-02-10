@@ -1,5 +1,5 @@
 from scripts.scrape_poet import scrape_poet
-from scripts.populate_db import *
+from scripts.database import *
 
 
 _DB_HOST = 'localhost'
