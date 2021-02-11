@@ -3,14 +3,13 @@ import requests
 from bs4 import BeautifulSoup as bs
 
 
-_BASE_URL = 'https://www.poetryfoundation.org/poets/'
-
-
-def scrape_poet(name):
+def scrape_poet(url):
     poet = {}
 
-    # get html for Etheridge Knight's page and make soup :)
-    html = requests.get(_BASE_URL + name)
+    # get html for poet's page and make soup :)
+    print(f"requesting {url}")
+    html = requests.get(url)
+    print(html.status_code)
     page_soup = bs(html.content, 'html.parser')
 
     # extract innerHtml and add to return object
@@ -22,9 +21,11 @@ def scrape_poet(name):
     else:
         poet["meta"] = ''
 
-    # biography/main text
-    poet_bio = page_soup.find('div', class_="c-userContent").text
-    poet["bio"] = poet_bio
+    # biography/main text (if present)
+    if page_soup.find('div', class_="c-userContent"):
+        poet["bio"] = page_soup.find('div', class_="c-userContent").text
+    else:
+        poet["bio"] = ''
 
     # 'more about this poet' section
     poet_attrs = {}

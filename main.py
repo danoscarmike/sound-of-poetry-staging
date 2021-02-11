@@ -10,9 +10,6 @@ _DB_PASSWORD = os.environ['MYSQL_PW']
 
 
 def main():
-    # scrape a poets details from the poetry foundation
-    yeats = scrape_poet('william-butler-yeats')
-
     # establish a connection with the database
     # and create a cursor
     db_cnx = connect_to_db(_DB_HOST,
@@ -21,11 +18,21 @@ def main():
                            'poetry')
     cursor = db_cnx.cursor()
 
+    # drop table
+    drop_table(cursor, 'poet')
+
     # create table
     create_table(cursor, 'poet')
 
-    # insert poet into db
-    insert_record(db_cnx, cursor, 'poet', yeats)
+    with open('scripts/poet_urls.txt', 'r') as f:
+        poet_urls = f.readlines()
+
+    for url in poet_urls:
+        poet = scrape_poet(url.strip('\n'))
+        print(poet)
+
+        # insert poet into db
+        insert_record(db_cnx, cursor, 'poet', poet)
 
     cursor.close()
 
