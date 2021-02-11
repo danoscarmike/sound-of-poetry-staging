@@ -41,3 +41,7 @@ def scrape_poet(url):
     poet["attrs"] = poet_attrs
 
     return poet
+
+
+if __name__ == "__main__":
+    print(scrape_poet("https://www.poetryfoundation.org/poets/betty-adcock"))
