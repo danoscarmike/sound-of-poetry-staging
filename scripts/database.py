@@ -4,23 +4,15 @@ from mysql.connector import errorcode
 
 def connect_to_db(host, user, password, database):
     db = mysql.connector.connect(
-      host=host,
-      user=user,
-      password=password,
-      database=database
+        host=host, user=user, password=password, database=database
     )
     return db
 
 
-def create_table(cursor, table_name):
+def create_table(cursor, table_name, stmt):
     try:
         print(f"Creating table {table_name}...")
-        cursor.execute(f"CREATE TABLE {table_name} ("
-                       "id INT NOT NULL AUTO_INCREMENT, "
-                       "name VARCHAR(255) NOT NULL, "
-                       "meta VARCHAR(255) NULL, "
-                       "bio  MEDIUMTEXT NULL, "
-                       "PRIMARY KEY (id));")
+        cursor.execute(stmt)
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
             print(f"Table {table_name} already exists.")
@@ -41,19 +33,40 @@ def drop_table(cursor, table_name):
 
 
 # TODO(danom): generalize this to add any record to any table
-def insert_record(cnx, cursor, table_name, record):
-    select_poet = f"""SELECT name, meta, bio """ \
-                  f"""FROM {table_name} """ \
-                  f"""WHERE name=%s AND meta=%s AND bio=%s;"""
+def insert_record(cnx, cursor, record):
+    select_poet = f"""SELECT id """ f"""FROM poet """ f"""WHERE pf_url=%(pf_url)s;"""
 
-    insert_poet = f"""INSERT INTO {table_name} """ \
-                  f"""(name, meta, bio) """ \
-                  f"""VALUES (%s, %s, %s);"""
+    insert_poet = (
+        f"""INSERT INTO poet """
+        f"""(name, yob, yod, img_url, bio, pf_url) """
+        f"""VALUES (%s, %s, %s, %s, %s, %s);"""
+    )
+
+    # select_region = f"""SELECT poet_id, region_id """ \
+    #               f"""FROM isfrom """ \
+    #               f"""WHERE poet_id=%d AND region_id=%d;"""
+    #
+    # insert_region = f"""INSERT INTO region """ \
+    #               f"""(poet_id, region_id) """ \
+    #               f"""VALUES (%s, %s, %s);"""
+
     try:
-        print("Inserting new record...")
-        cursor.execute(select_poet, (record['name'], record['meta'], record['bio']))
-        if len(cursor.fetchall()) == 0:
-            cursor.execute(insert_poet, (record['name'], record['meta'], record['bio']))
+        cursor.execute(select_poet, {"pf_url": record["pf_url"]})
+        res = cursor.fetchall()
+
+        if len(res) == 0:
+            print("Inserting new record...")
+            cursor.execute(
+                insert_poet,
+                (
+                    record["name"],
+                    record["yob"],
+                    record["yod"],
+                    record["image"],
+                    record["bio"],
+                    record["pf_url"],
+                ),
+            )
             cnx.commit()
         else:
             print("Record already exists.")
