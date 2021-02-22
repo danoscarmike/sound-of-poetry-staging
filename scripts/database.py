@@ -34,21 +34,13 @@ def drop_table(cursor, table_name):
 
 # TODO(danom): generalize this to add any record to any table
 def insert_record(cnx, cursor, record):
-    select_poet = f"""SELECT id """ f"""FROM poet """ f"""WHERE pf_url=%(pf_url)s;"""
+    select_poet = f"""SELECT id FROM poet WHERE pf_url=%(pf_url)s;"""
 
     insert_poet = (
         f"""INSERT INTO poet """
         f"""(name, yob, yod, img_url, bio, pf_url) """
         f"""VALUES (%s, %s, %s, %s, %s, %s);"""
     )
-
-    # select_region = f"""SELECT poet_id, region_id """ \
-    #               f"""FROM isfrom """ \
-    #               f"""WHERE poet_id=%d AND region_id=%d;"""
-    #
-    # insert_region = f"""INSERT INTO region """ \
-    #               f"""(poet_id, region_id) """ \
-    #               f"""VALUES (%s, %s, %s);"""
 
     try:
         cursor.execute(select_poet, {"pf_url": record["pf_url"]})
