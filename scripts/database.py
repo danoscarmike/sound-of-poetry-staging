@@ -32,18 +32,43 @@ def drop_table(cursor, table_name):
         print("OK")
 
 
-# TODO(danom): generalize this to add any record to any table
-def insert_record(cnx, cursor, record):
-    select_poet = f"""SELECT id FROM poet WHERE pf_url=%(pf_url)s;"""
+def insert_record(cnx, cursor, table, primary_key, fields, record):
+    select_record = f"""SELECT {primary_key} FROM {table} WHERE {primary_key}=%(primary_key)s;"""
+
+    insert_values = (
+        f"""INSERT INTO {table} """
+        f"""({primary_key}, {', '.join(fields)}) """
+        f"""VALUES (%s, {', '.join(map(lambda x: '%s', fields))});"""
+    )
+
+    try:
+        primary_key_value = record[f"{primary_key}"]
+        cursor.execute(select_record, {"primary_key": primary_key_value})
+        res = cursor.fetchall()
+
+        if len(res) == 0:
+            print("Inserting new record...")
+            cursor.execute(insert_values, (primary_key_value, ) + tuple(map(lambda x: f"{record[x]}", fields)))
+            cnx.commit()
+        else:
+            print("Record already exists.")
+    except mysql.connector.Error as err:
+        print(err.msg)
+    else:
+        print("OK")
+
+
+def insert_poet(cnx, cursor, record):
+    select_poet = f"""SELECT id FROM poet WHERE url=%(url)s;"""
 
     insert_poet = (
         f"""INSERT INTO poet """
-        f"""(name, yob, yod, img_url, bio, pf_url) """
+        f"""(name, yob, yod, img_url, bio, url) """
         f"""VALUES (%s, %s, %s, %s, %s, %s);"""
     )
 
     try:
-        cursor.execute(select_poet, {"pf_url": record["pf_url"]})
+        cursor.execute(select_poet, {"url": record["url"]})
         res = cursor.fetchall()
 
         if len(res) == 0:
@@ -56,7 +81,7 @@ def insert_record(cnx, cursor, record):
                     record["yod"],
                     record["image"],
                     record["bio"],
-                    record["pf_url"],
+                    record["url"],
                 ),
             )
             cnx.commit()

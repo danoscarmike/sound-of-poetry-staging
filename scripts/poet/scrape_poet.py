@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup as bs
 
 
 def scrape_poet(url):
-    poet = {"pf_url": url}
+    poet = {"url": url}
 
     # get html for poet's page and make soup :)
     print(f"requesting {url}")
