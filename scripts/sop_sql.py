@@ -1,9 +1,11 @@
 import re
 from . import word_net_sql as wn
 
+
 def select_all_media_classes(cursor):
     cursor.execute(f"""SELECT * FROM media_class;""")
     return cursor.fetchall()
+
 
 def insert_poem(cursor, db_cnx, url, poet_url, title, poem_string, audio_url, video_url):
     cursor.execute(
